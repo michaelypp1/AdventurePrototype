@@ -277,15 +277,21 @@ class LockPuzzleRoom extends Room0Scene {
     }
 
     onEnter() {
-         this.addBackground('bgLock');
-        this.showMessage("A timer glows on the wall. You have 20 seconds to escape this room.");
-        this.startRoomTimer(20);
+        this.addBackground('bgLock');
+        this.showMessage("A timer glows on the wall. Look at the symbols, then enter the code.");
+
+        if (this.startRoomTimer) {
+            this.startRoomTimer(45);
+        }
+
         this.addHotspot(
             0.13, 0.25,
             "wall symbols",
             "Symbols are painted on the wall.",
-            () => {
-                this.showMessage("The symbols match the clue: triangle = 3, circle = 1, square = 4.");
+            (symbols) => {
+                this.showMessage("Symbol clue: triangle = 3, circle = 1, square = 4. The code is the order shown on the wall.");
+                this.gainItem("symbol clue");
+                this.blink(symbols);
             }
         );
 
@@ -295,18 +301,39 @@ class LockPuzzleRoom extends Room0Scene {
             "A metal box requires a three-digit code.",
             (box) => {
                 if (!this.hasItem("clue: 314")) {
-                    this.showMessage("You need a number clue first.");
+                    this.showMessage("You need the scratched number clue from the first room.");
                     this.shake(box);
                     return;
                 }
 
-                if (!this.hasItem("fuse")) {
-                    this.showMessage("You enter 314. The box opens and reveals a fuse.");
+                if (!this.hasItem("symbol clue")) {
+                    this.showMessage("You should inspect the wall symbols first.");
+                    this.shake(box);
+                    return;
+                }
+
+                if (this.hasItem("fuse")) {
+                    this.showMessage("The box is already open.");
+                    return;
+                }
+
+                let answer = prompt("Enter the 3-digit code:");
+
+                if (answer === null) {
+                    this.showMessage("You step away from the keypad.");
+                    return;
+                }
+
+                answer = answer.trim();
+
+                if (answer === "314") {
+                    this.showMessage("Correct. The box opens and reveals a fuse.");
                     this.gainItem("fuse");
                     box.setText("opened box");
                     this.cameras.main.flash(150, 200, 200, 180);
                 } else {
-                    this.showMessage("The box is already open.");
+                    this.showMessage("Wrong code. Check the wall symbols again.");
+                    this.shake(box);
                 }
             }
         );
@@ -352,7 +379,7 @@ class LockPuzzleRoom extends Room0Scene {
             "red door",
             "storageRoom",
             ["fuse"],
-            "The next door has no power.",
+            "The red door is locked. Open the keypad box and get the fuse first.",
             "You insert the fuse. The red door unlocks."
         );
     }
