@@ -169,6 +169,8 @@ class Intro extends Phaser.Scene {
         this.load.image('bgStorage', 'assest/storage room.png');
         this.load.image('bgMonitor', 'assest/Monitor Room.png');
         this.load.image('bgFinal', 'assest/Final Door Chamber.png');
+        this.load.audio('horrorMusic', 'assest/怪心idgg - 恐怖音乐.mp3');
+        this.load.audio('winMusic', 'assest/坂本英城 - 功成.mp3');
     }
 
     create() {
@@ -194,9 +196,16 @@ class Intro extends Phaser.Scene {
         });
 
         this.input.on('pointerdown', () => {
-            this.cameras.main.fade(1000, 0, 0, 0);
-            this.time.delayedCall(1000, () => this.scene.start('wakeRoom'));
+    if (!this.sound.get('horrorMusic')) {
+        this.sound.play('horrorMusic', {
+            loop: true,
+            volume: 0.35
         });
+    }
+
+    this.cameras.main.fade(1000, 0, 0, 0);
+    this.time.delayedCall(1000, () => this.scene.start('wakeRoom'));
+});
     }
 }
 
@@ -767,6 +776,11 @@ class GoodEnding extends Phaser.Scene {
 
     create() {
         this.cameras.main.setBackgroundColor('#050505');
+        this.sound.stopByKey('horrorMusic');
+this.sound.play('winMusic', {
+    loop: false,
+    volume: 0.6
+});
 
         this.add.text(80, 80, "GOOD ENDING: ESCAPE")
             .setStyle({
@@ -802,6 +816,7 @@ class BadEnding extends Phaser.Scene {
 
     create() {
         this.cameras.main.setBackgroundColor('#120000');
+        this.sound.stopByKey('horrorMusic');
 
         this.add.text(80, 80, "BAD ENDING: LOCKED IN")
             .setStyle({
