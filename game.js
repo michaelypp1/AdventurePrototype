@@ -466,6 +466,13 @@ class MonitorRoom extends Room0Scene {
         this.addBackground('bgMonitor');
         this.showMessage("Static fills the screens. You can see the rooms you escaped.");
 
+        this.time.delayedCall(20000, () => {
+            if (!this.hasItem("keycard")) {
+                this.showMessage("You have been stuck here for a while. Maybe you missed something in the Storage Room.");
+                this.cameras.main.flash(250, 120, 0, 0);
+            }
+        });
+
         this.addHotspot(
             0.22, 0.32,
             "security monitors",
@@ -497,7 +504,7 @@ class MonitorRoom extends Room0Scene {
             "The drawer has a card reader.",
             (drawer) => {
                 if (!this.hasItem("keycard")) {
-                    this.showMessage("The drawer needs an access card.");
+                    this.showMessage("The drawer needs an access card. Go back to the Storage Room and check the sealed crate.");
                     this.shake(drawer);
                     return;
                 }
@@ -528,6 +535,18 @@ class MonitorRoom extends Room0Scene {
             "Several old tapes are stacked on the desk.",
             () => {
                 this.showMessage("Most tapes are blank. One label says: Room 0 repeats mistakes.");
+            }
+        );
+
+        this.addHotspot(
+            0.08, 0.82,
+            "go back to storage",
+            "Maybe you missed an item in the previous room.",
+            () => {
+                this.showMessage("You return to the Storage Room to look for the missing item.");
+                this.time.delayedCall(400, () => {
+                    this.gotoScene("storageRoom");
+                });
             }
         );
 
