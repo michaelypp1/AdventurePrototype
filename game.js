@@ -225,11 +225,11 @@ class WakeRoom extends Room0Scene {
             "inspect table",
             "The metal table is scratched with numbers.",
             (table) => {
-                if (!this.hasItem("clue: 314")) {
-                    this.showMessage("You read the scratched numbers: 3 - 1 - 4.");
-                    this.gainItem("clue: 314");
+                if (!this.hasItem("clue: 213")) {
+                    this.showMessage("You read the scratched numbers: 2 - 1 - 3.");
+                    this.gainItem("clue: 213");
                 } else {
-                    this.showMessage("The scratched numbers are still there: 3 - 1 - 4.");
+                    this.showMessage("The scratched numbers are still there: 2 - 1 - 3.");
                 }
             }
         );
@@ -281,16 +281,119 @@ class LockPuzzleRoom extends Room0Scene {
         this.showMessage("A timer glows on the wall. Look at the symbols, then enter the code.");
 
         if (this.startRoomTimer) {
-            this.startRoomTimer(45);
+            this.startRoomTimer(25);
         }
+
+        let enteredCode = "";
+        let keypadPanel = null;
+        let keypadDisplay = null;
+        this.add.text(this.w * 0.01, this.h * 0.12,
+    "SYMBOL CHART\n\n△ = 1\nO = 2\n□ = 3\n\nPATTERN:\n○  △  □",
+    {
+        fontSize: `${1.5 * this.s}px`,
+        color: '#dddddd',
+        fontFamily: 'monospace',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        padding: { x: 10, y: 8 }
+    }
+);
+
+        const openKeypad = (box) => {
+            if (keypadPanel) {
+                keypadPanel.setVisible(true);
+                return;
+            }
+
+            keypadPanel = this.add.container(this.w * 0.36, this.h * 0.52);
+            keypadPanel.setDepth(50);
+
+            let bg = this.add.rectangle(0, 0, 430, 520, 0x000000, 0.88)
+                .setStrokeStyle(4, 0xff3333);
+
+            let title = this.add.text(0, -220, "ENTER CODE", {
+                fontSize: `${2.1 * this.s}px`,
+                color: '#ff7777',
+                fontFamily: 'monospace'
+            }).setOrigin(0.5);
+
+            keypadDisplay = this.add.text(0, -165, "CODE: ___", {
+                fontSize: `${2 * this.s}px`,
+                color: '#ffffff',
+                fontFamily: 'monospace'
+            }).setOrigin(0.5);
+
+            keypadPanel.add([bg, title, keypadDisplay]);
+
+            const updateDisplay = () => {
+                let shown = enteredCode.padEnd(3, "_");
+                keypadDisplay.setText("CODE: " + shown);
+            };
+
+            const makeButton = (label, x, y, action) => {
+                let btn = this.add.text(x, y, label, {
+                    fontSize: `${2 * this.s}px`,
+                    color: '#ffffff',
+                    fontFamily: 'monospace',
+                    backgroundColor: 'rgba(80,80,80,0.85)',
+                    padding: { x: 18, y: 10 }
+                })
+                    .setOrigin(0.5)
+                    .setInteractive({ useHandCursor: true })
+                    .on('pointerover', () => btn.setColor('#ffdd88'))
+                    .on('pointerout', () => btn.setColor('#ffffff'))
+                    .on('pointerdown', action);
+
+                keypadPanel.add(btn);
+                return btn;
+            };
+
+            let nums = [
+                ["1", -110, -90], ["2", 0, -90], ["3", 110, -90],
+                ["4", -110, -25], ["5", 0, -25], ["6", 110, -25],
+                ["7", -110, 40], ["8", 0, 40], ["9", 110, 40],
+                ["0", 0, 105]
+            ];
+
+            nums.forEach(([num, x, y]) => {
+                makeButton(num, x, y, () => {
+                    if (enteredCode.length < 3) {
+                        enteredCode += num;
+                        updateDisplay();
+                    }
+                });
+            });
+
+            makeButton("CLEAR", -100, 180, () => {
+                enteredCode = "";
+                updateDisplay();
+            });
+
+            makeButton("ENTER", 100, 180, () => {
+                if (enteredCode === "213") {
+                    this.showMessage("Correct. The box opens and reveals a fuse.");
+                    this.gainItem("fuse");
+                    box.setText("opened box");
+                    keypadPanel.setVisible(false);
+                    this.cameras.main.flash(150, 200, 200, 180);
+                } else {
+                    this.showMessage("Wrong code. Check the wall symbols again.");
+                    enteredCode = "";
+                    updateDisplay();
+                    this.shake(keypadPanel);
+                }
+            });
+        };
 
         this.addHotspot(
             0.13, 0.25,
             "wall symbols",
             "Symbols are painted on the wall.",
             (symbols) => {
-                this.showMessage("Symbol clue: triangle = 3, circle = 1, square = 4. The code is the order shown on the wall.");
-                this.gainItem("symbol clue");
+                if (!this.hasItem("symbol clue")) {
+                    this.gainItem("symbol clue");
+                }
+
+                this.showMessage("Symbol clue: triangle = 1, circle = 2, square = 3. The wall order gives the code.");
                 this.blink(symbols);
             }
         );
@@ -300,41 +403,19 @@ class LockPuzzleRoom extends Room0Scene {
             "keypad box",
             "A metal box requires a three-digit code.",
             (box) => {
-                if (!this.hasItem("clue: 314")) {
-                    this.showMessage("You need the scratched number clue from the first room.");
-                    this.shake(box);
-                    return;
-                }
-
-                if (!this.hasItem("symbol clue")) {
-                    this.showMessage("You should inspect the wall symbols first.");
-                    this.shake(box);
-                    return;
-                }
-
                 if (this.hasItem("fuse")) {
                     this.showMessage("The box is already open.");
                     return;
                 }
 
-                let answer = prompt("Enter the 3-digit code:");
-
-                if (answer === null) {
-                    this.showMessage("You step away from the keypad.");
+                if (!this.hasItem("symbol clue")) {
+                    this.showMessage("Look at the wall symbols first.");
+                    this.shake(box);
                     return;
                 }
 
-                answer = answer.trim();
-
-                if (answer === "314") {
-                    this.showMessage("Correct. The box opens and reveals a fuse.");
-                    this.gainItem("fuse");
-                    box.setText("opened box");
-                    this.cameras.main.flash(150, 200, 200, 180);
-                } else {
-                    this.showMessage("Wrong code. Check the wall symbols again.");
-                    this.shake(box);
-                }
+                this.showMessage("Enter the 3-digit code.");
+                openKeypad(box);
             }
         );
 
@@ -384,7 +465,6 @@ class LockPuzzleRoom extends Room0Scene {
         );
     }
 }
-
 
 class StorageRoom extends Room0Scene {
     constructor() {
