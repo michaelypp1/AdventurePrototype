@@ -16,6 +16,9 @@ Timer: the Lock Puzzle Room has a timed challenge that sends the player to the b
 
 Asset sources：
 The room background images were created by me using ChatGPT image generation. I prompted for realistic industrial horror escape-room backgrounds with metal doors, pipes, red warning lights, wet floors, puzzle rooms, storage shelves, CRT monitors, and a final vault door. I then selected clearer versions that matched the game's style.
+The audio files used in this project are:
+怪心idgg - 恐怖音乐.mp3 for the horror background music
+坂本英城 - 功成.mp3 for the good ending music
 
 Code sources：
 adventure.js and the starter structure were created by Adam Smith:
