@@ -1,22 +1,24 @@
-A simple adventure game by {who?} based on a simple adventure game engine by [Adam Smith](https://github.com/rndmcnlly).
+Room 0: The Final Test
+A psychological horror escape-room adventure game by Me, based on a simple adventure game engine by Adam Smith:
+https://github.com/rndmcnlly/AdventurePrototype
+The player wakes up inside a locked industrial building and must solve room-based puzzles to escape.
 
-Code requirements:
-- **4+ scenes based on `AdventureScene`**: unsatisfied (name at least 4 of the classes).
-- **2+ scenes *not* based on `AdventureScene`**: unsatisfied (name the classes).
-- **2+ methods or other enhancement added to the adventure game engine to simplify my scenes**:
-    - Enhancement 1: unsatisfied (name the method and explain the use of it).
-    - Enhancement 2: unsatisfied (name the method and explain the use of it).
+Requirements：
+AdventureScene scenes: WakeRoom, LockPuzzleRoom, StorageRoom, MonitorRoom, FinalDoor
+Non-AdventureScene scenes: Intro, GoodEnding, BadEnding
+Helper methods added: addBackground(), addHotspot(), lockedExit(), shake(), blink()
+Locations: Wake-Up Room, Lock Puzzle Room, Storage Room, Monitor Room, Final Door Chamber
+Interactive objects: tape recorder, table, floor tile, keypad box, fuse panel, toolbox, sealed crate, monitors, locked drawer, card reader, keypad, final door
+Pointerover messages: most objects show hints when hovered
+Pointerdown effects: objects give items, reveal clues, unlock doors, shake, blink, flash, or move to another scene
+Animation examples: objects blink, locked items shake, and the camera flashes during important moments
+Timer: the Lock Puzzle Room has a timed challenge that sends the player to the bad ending if they fail
 
-Experience requirements:
-- **4+ locations in the game world**: unsatisfied (name at least 4 of the classes).
-- **2+ interactive objects in most scenes**: unsatisfied (describe two examples)
-- **Many objects have `pointerover` messages**: unsatisfied (describe two examples)
-- **Many objects have `pointerdown` effects**: unsatisfied (describe two examples)
-- **Some objects are themselves animated**: unsatisfied (describe two examples)
+Asset sources：
+The room background images were created by me using ChatGPT image generation. I prompted for realistic industrial horror escape-room backgrounds with metal doors, pipes, red warning lights, wet floors, puzzle rooms, storage shelves, CRT monitors, and a final vault door. I then selected clearer versions that matched the game's style.
 
-Asset sources:
-- (For each image/audio/video asset used, describe how it was created. What tool did you use to create it? Was it based on another work? If so, how did you change it, and where can we learn more about the original work for comparison? Use [Markdown link syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#links).)
+Code sources：
+adventure.js and the starter structure were created by Adam Smith:
+https://github.com/rndmcnlly/AdventurePrototype
 
-Code sources:
-- `adventure.js` and `index.html` were created for this project [Adam Smith](https://github.com/rndmcnlly) and edited by me.
-- `game.js` was sketched by [Adam Smith](https://github.com/rndmcnlly) and rewritten by me.
+game.js was based on the starter example and rewritten by me for my Room 0 game.
