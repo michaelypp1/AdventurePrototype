@@ -74,62 +74,62 @@ class Room0Scene extends AdventureScene {
         });
     }
     startRoomTimer(seconds) {
-    this.timerRemaining = seconds;
-    this.timerFinished = false;
+        this.timerRemaining = seconds;
+        this.timerFinished = false;
 
-    this.timerText = this.add.text(
-        this.w * 0.75 + this.s,
-        this.h * 0.52,
-        `Time left: ${this.timerRemaining}s`
-    ).setStyle({
-        fontSize: `${2 * this.s}px`,
-        color: '#ff7777',
-        fontFamily: 'monospace'
-    }).setWordWrapWidth(this.w * 0.25 - 2 * this.s);
+        this.timerText = this.add.text(
+            this.w * 0.75 + this.s,
+            this.h * 0.52,
+            `Time left: ${this.timerRemaining}s`
+        ).setStyle({
+            fontSize: `${2 * this.s}px`,
+            color: '#ff7777',
+            fontFamily: 'monospace'
+        }).setWordWrapWidth(this.w * 0.25 - 2 * this.s);
 
-    this.timerEvent = this.time.addEvent({
-        delay: 1000,
-        loop: true,
-        callback: () => {
-            if (this.timerFinished) {
-                return;
+        this.timerEvent = this.time.addEvent({
+            delay: 1000,
+            loop: true,
+            callback: () => {
+                if (this.timerFinished) {
+                    return;
+                }
+
+                this.timerRemaining -= 1;
+                this.timerText.setText(`Time left: ${this.timerRemaining}s`);
+
+                if (this.timerRemaining <= 5) {
+                    this.timerText.setColor('#ff2222');
+                    this.cameras.main.flash(80, 120, 0, 0);
+                }
+
+                if (this.timerRemaining <= 0) {
+                    this.timerFinished = true;
+                    this.timerEvent.remove(false);
+
+                    this.showMessage("Time is up. The room locks down.");
+                    this.cameras.main.flash(400, 255, 0, 0);
+
+                    this.time.delayedCall(700, () => {
+                        this.gotoScene("badEnding");
+                    });
+                }
             }
+        });
+    }
 
-            this.timerRemaining -= 1;
-            this.timerText.setText(`Time left: ${this.timerRemaining}s`);
+    cancelRoomTimer() {
+        this.timerFinished = true;
 
-            if (this.timerRemaining <= 5) {
-                this.timerText.setColor('#ff2222');
-                this.cameras.main.flash(80, 120, 0, 0);
-            }
-
-            if (this.timerRemaining <= 0) {
-                this.timerFinished = true;
-                this.timerEvent.remove(false);
-
-                this.showMessage("Time is up. The room locks down.");
-                this.cameras.main.flash(400, 255, 0, 0);
-
-                this.time.delayedCall(700, () => {
-                    this.gotoScene("badEnding");
-                });
-            }
+        if (this.timerEvent) {
+            this.timerEvent.remove(false);
         }
-    });
-}
 
-cancelRoomTimer() {
-    this.timerFinished = true;
-
-    if (this.timerEvent) {
-        this.timerEvent.remove(false);
+        if (this.timerText) {
+            this.timerText.setText("Timer stopped.");
+            this.timerText.setColor('#88ff88');
+        }
     }
-
-    if (this.timerText) {
-        this.timerText.setText("Timer stopped.");
-        this.timerText.setColor('#88ff88');
-    }
-}
 
     lockedExit(x, y, label, destination, requiredItems, lockedMessage, openMessage) {
         return this.addHotspot(x, y, label, lockedMessage, (door) => {
@@ -141,14 +141,14 @@ cancelRoomTimer() {
                 return;
             }
 
-           this.showMessage(openMessage);
-door.setText("open door");
+            this.showMessage(openMessage);
+            door.setText("open door");
 
-this.cancelRoomTimer();
+            this.cancelRoomTimer();
 
-this.time.delayedCall(650, () => {
-    this.gotoScene(destination);
-});
+            this.time.delayedCall(650, () => {
+                this.gotoScene(destination);
+            });
 
             this.time.delayedCall(650, () => {
                 this.gotoScene(destination);
@@ -196,16 +196,16 @@ class Intro extends Phaser.Scene {
         });
 
         this.input.on('pointerdown', () => {
-    if (!this.sound.get('horrorMusic')) {
-        this.sound.play('horrorMusic', {
-            loop: true,
-            volume: 0.35
-        });
-    }
+            if (!this.sound.get('horrorMusic')) {
+                this.sound.play('horrorMusic', {
+                    loop: true,
+                    volume: 0.35
+                });
+            }
 
-    this.cameras.main.fade(1000, 0, 0, 0);
-    this.time.delayedCall(1000, () => this.scene.start('wakeRoom'));
-});
+            this.cameras.main.fade(1000, 0, 0, 0);
+            this.time.delayedCall(1000, () => this.scene.start('wakeRoom'));
+        });
     }
 }
 
@@ -296,16 +296,18 @@ class LockPuzzleRoom extends Room0Scene {
         let enteredCode = "";
         let keypadPanel = null;
         let keypadDisplay = null;
-        this.add.text(this.w * 0.01, this.h * 0.12,
-    "SYMBOL CHART\n\n△ = 1\nO = 2\n□ = 3\n\nPATTERN:\n○  △  □",
-    {
-        fontSize: `${1.5 * this.s}px`,
-        color: '#dddddd',
-        fontFamily: 'monospace',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        padding: { x: 10, y: 8 }
-    }
-);
+        let symbolChart = this.add.text(
+            this.w * 0.01,
+            this.h * 0.12,
+            "SYMBOL CHART\n\n△ = 1\nO = 2\n□ = 3\n\nPATTERN:\nO  △  □",
+            {
+                fontSize: `${1.5 * this.s}px`,
+                color: '#dddddd',
+                fontFamily: 'monospace',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                padding: { x: 10, y: 8 }
+            }
+        ).setVisible(false);
 
         const openKeypad = (box) => {
             if (keypadPanel) {
@@ -401,6 +403,8 @@ class LockPuzzleRoom extends Room0Scene {
                 if (!this.hasItem("symbol clue")) {
                     this.gainItem("symbol clue");
                 }
+
+                symbolChart.setVisible(true);
 
                 this.showMessage("Symbol clue: triangle = 1, circle = 2, square = 3. The wall order gives the code.");
                 this.blink(symbols);
@@ -777,10 +781,10 @@ class GoodEnding extends Phaser.Scene {
     create() {
         this.cameras.main.setBackgroundColor('#050505');
         this.sound.stopByKey('horrorMusic');
-this.sound.play('winMusic', {
-    loop: false,
-    volume: 0.6
-});
+        this.sound.play('winMusic', {
+            loop: false,
+            volume: 0.6
+        });
 
         this.add.text(80, 80, "GOOD ENDING: ESCAPE")
             .setStyle({
